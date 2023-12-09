@@ -8,8 +8,7 @@ class Soup:
         self.soup = None
         self.html = None
         self.listings = None
-        self.list = []
-        self.inserat = []
+        self.inserate = []
 
     def set_soup(self, text):
         self.soup = BeautifulSoup(text, 'html.parser')
@@ -17,55 +16,53 @@ class Soup:
     def get_soup(self):
         return self.soup.prettify()
 
-    def get_listing(self):
-        # return self.soup.find_all("div", class_="result-list-entry__data")
-        global entfernung, entfernung
+    def set_listing(self):
+
         self.listings = self.soup.find_all("div", class_="result-list-entry__data")
-        for listing in self.listings:  # Todo Hier in dict erst speichern dann Liste
-            if listing is not None:
+        for listing in self.listings:
+            try:
+                if listing is not None:
 
+                    name_tag = listing.find("a", class_="result-list-entry__brand-title-container")
+                    if name_tag is not None:
+                        name_tag = name_tag.find("h2").get_text()
+                        if name_tag[0:3] == "NEU":
+                            name_tag = name_tag[3:-1]
+                    else:
+                        name_tag = ""
+                    adresse = listing.find("button", class_="result-list-entry__map-link")
+                    content = listing.find_all("dd", class_="font-highlight")
+                    preis = content[0]
+                    flaeche = content[1]
+                    zimmer = listing.find("span", class_="onlyLarge")
+                    link = listing.find("a", class_="result-list-entry__brand-title-container").get("href")
+                    entfernung = listing.find("div", "margin-right-xs")
 
-                name_tag = listing.find("a", class_="result-list-entry__brand-title-container")
-                if name_tag is not None:
-                    name_tag = name_tag.find("h2").get_text()
-                    if name_tag[0:3] == "NEU":
-                        name_tag = name_tag[3:-1]
+                    daten = {
+                        "name_tag": name_tag,
+                        "adresse": adresse.get_text() if adresse is not None else "",
+                        "preis": float(preis.get_text().strip("€").replace(',', '')) if preis is not None else "",
+                        "flaeche": float(flaeche.get_text().strip(" m²").replace(',', '')) if flaeche is not None else "",
+                        "zimmer": float(zimmer.get_text().replace(',', '.')) if zimmer is not None else "",
+                        "link": link if link is not None else "",
+                        "entfernung": float(entfernung.get_text().split("km |")[0]) if entfernung is not None else "",
+                    }
+
+                    self.inserate.append(daten)
+
                 else:
-                    name_tag = ""
+                    continue
 
-                adresse = listing.find("button", class_="result-list-entry__map-link")#.get_text()
-                content = listing.find_all("dd", class_="font-highlight")
-                preis = content[0]#.get_text().strip("€").replace(',', '')) #Integer Type Casting
-                flaeche = content[1]#.get_text().strip(" m²").replace(',', '')
-                zimmer = listing.find("span", class_="onlyLarge")#.get_text().replace(',', '.')
-                link = listing.find("a", class_="result-list-entry__brand-title-container").get("href")
-                entfernung = listing.find("div", "margin-right-xs")
-                # if entfernung is not None:
-                #     entfernung = float(entfernung.get_text().split("km |")[0])
+            except ValueError:
+                print("Value Error")
 
-
-
-                daten = {
-                    "name_tag": name_tag,
-                    "adresse" : adresse.get_text() if adresse is not None else "",
-                    "preis" : float(preis.get_text().strip("€").replace(',', '')) if preis is not None else "",
-                    "flaeche" : float(flaeche.get_text().strip(" m²").replace(',', '')) if flaeche is not None else "",
-                    "zimmer" : float(zimmer.get_text().replace(',', '.')) if zimmer is not None else "",
-                    "link" : link if link is not None else "",
-                    "entfernung" : float(entfernung.get_text().split("km |")[0]) if entfernung is not None else "",
-
-                }
-
-                print(daten)
-
-
-            else:
+            except:
                 continue
 
-    # [{}]
 
     def set_html(self, html):
         self.html = html
+
 
 test2 = r"""<html lang="de"><head>
   
@@ -5604,13 +5601,5 @@ body.no-scroll {
 
 soup = Soup()
 soup.set_soup(text=test2)
-print(soup.get_listing())
-# x = soup.get_listing()[1]
-# print(x.find("a", class_="result-list-entry__brand-title-container").find("h2").get_text())  # tag
-# print(x.find("button", class_="result-list-entry__map-link").get_text())  # addresse
-# y = x.find_all("dd", class_="font-highlight")  # Todo preis in euro muss gestrippt werden!
-# for l in y:
-#     print(l.get_text())  # 3 Zi.3 zu 3
-# # print(x.find("span", class_= "onlyLarge").get_text()) #Zimmer
-#
-# print(x.find("div", "margin-right-xs").get_text())
+print(len(soup.set_listing()))
+
