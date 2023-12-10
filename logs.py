@@ -9,4 +9,3 @@ def writelogs(error):
         )
     logging.error(error)
 
-
