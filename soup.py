@@ -1,4 +1,5 @@
 import requests
+from logs import writelogs
 from bs4 import BeautifulSoup
 
 
@@ -54,10 +55,10 @@ class Soup:
                     continue
 
             except ValueError as v:
-                print(v)
+                writelogs(v)
 
-            except:
-                continue
+            except Exception as e:
+                writelogs(e)
 
 
     def set_html(self, html):
@@ -5601,5 +5602,6 @@ body.no-scroll {
 
 soup = Soup()
 soup.set_soup(text=test2)
-print(len(soup.set_listing()))
+soup.set_listing()
+print(soup.inserate)
 
