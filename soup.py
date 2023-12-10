@@ -53,8 +53,8 @@ class Soup:
                 else:
                     continue
 
-            except ValueError:
-                print("Value Error")
+            except ValueError as v:
+                print(v)
 
             except:
                 continue
