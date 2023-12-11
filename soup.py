@@ -10,6 +10,7 @@ class Soup:
         self.html = None
         self.listings = None
         self.inserate = []
+        self.seitenanzahl : int
 
     def set_soup(self, text):
         self.soup = BeautifulSoup(text, 'html.parser')
@@ -18,7 +19,7 @@ class Soup:
         return self.soup.prettify()
 
     def set_listing(self):
-
+        #Todo: Mieterplus anzeigen Filtern
         self.listings = self.soup.find_all("div", class_="result-list-entry__data")
         for listing in self.listings:
             try:
@@ -59,6 +60,15 @@ class Soup:
 
             except Exception as e:
                 writelogs(e)
+
+    def get_seitenanzahl(self):
+        try:
+            seitenzahl_element = self.soup.find("ul", class_="reactPagination").get_text()
+            self.seitenanzahl = int(seitenzahl_element[-1])
+
+        except Exception as e:
+            self.seitenanzahl = 1
+
 
 
     def set_html(self, html):
@@ -5604,4 +5614,4 @@ soup = Soup()
 soup.set_soup(text=test2)
 soup.set_listing()
 print(soup.inserate)
-
+soup.get_seitenanzahl()
