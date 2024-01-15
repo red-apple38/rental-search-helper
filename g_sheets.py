@@ -1,14 +1,5 @@
 import requests
-
-
-# auth = "8yvmVcvZ0VsRWJkS75XS7EMN"
-# headers = {
-#     "Authorization": "Bearer 8yvmVcvZ0VsRWJkS75XS7EMN"
-# }
-#
-# response = requests.get("https://api.sheety.co/9cd5c9e95a701eec3555d448104261d8/wohungssuche/tabellenblatt1", headers=headers).json()
-#
-# print(response)
+import os
 
 
 # res = {'tabellenblatt1': [{'ort': 'Gießen', 'preis': 700, 'zimmer': 2, 'id': 2},
@@ -25,7 +16,7 @@ class Daten:
 
     def __init__(self):
         self.headers = {
-            "Authorization": "Bearer 8yvmVcvZ0VsRWJkS75XS7EMN"}
+            "Authorization": os.environ.get("sheety")}
         self.response = requests.get(
             "https://api.sheety.co/9cd5c9e95a701eec3555d448104261d8/wohungssuche/tabellenblatt1",
             headers=self.headers).json()

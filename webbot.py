@@ -49,6 +49,8 @@ class WebBot:
     def set_and_get_html_content(self):
         self.html_content = self.driver.page_source
         return self.html_content
+
+
 bot = WebBot()
 bot.start()
 time.sleep(3)
