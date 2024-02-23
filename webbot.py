@@ -1,6 +1,7 @@
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.keys import Keys
 import undetected_chromedriver as uc
 import time
 import requests
@@ -51,7 +52,7 @@ class WebBot:
         return self.html_content
 
 
-bot = WebBot()
+bot = WebBot() # driver Error falls Chrome updated abfangen Log message
 bot.start()
 time.sleep(3)
 try:
@@ -68,15 +69,28 @@ except TimeoutError as t:
 finally:
     bot.set_element(dom_suchkriterium="id", element_locator="oss-location", )
     bot.clear_and_send_keys(text="Gießen")
-    bot.set_element(dom_suchkriterium="id", element_locator="oss-price")
-    bot.clear_and_send_keys("800")
-    bot.set_element(dom_suchkriterium="id", element_locator="oss-radius")
-    bot.select_field_by_value("Km5")
-    bot.set_element(dom_suchkriterium="id", element_locator="oss-rooms")
-    bot.select_field_by_value("2")
-    bot.set_element(dom_suchkriterium="css selector", element_locator="button.oss-main-criterion.oss-button")
-    bot.click()
-    time.sleep(4)
+    time.sleep(1)
+    bot.element.send_keys(Keys.ENTER)
+    time.sleep(1)
+    bot.element.send_keys(Keys.ENTER)
+
+
+    #Im neuen Design obsolet
+    #bot.set_element(dom_suchkriterium="css selector", element_locator="button.oss-main-criterion.oss-button.button-primary")
+
+
+    time.sleep(10)
+
+    #Todo Feature will be delayed
+    #Design update Immo
+
+    # bot.set_element(dom_suchkriterium="id", element_locator="oss-price")
+    # bot.clear_and_send_keys("800")
+    # bot.set_element(dom_suchkriterium="id", element_locator="oss-radius")
+    # bot.select_field_by_value("Km5")
+    # bot.set_element(dom_suchkriterium="id", element_locator="oss-rooms")
+    # bot.select_field_by_value("2")
+
     selenium_cookies = bot.driver.get_cookies()
     requests_cookies = {cookie['name']: cookie['value'] for cookie in selenium_cookies}
     hdr = {'User-Agent': user_agent,
