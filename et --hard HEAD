@@ -1,0 +1,10 @@
+[1mdiff --git a/soup.py b/soup.py[m
+[1mindex 5f41e88..a6ff313 100644[m
+[1m--- a/soup.py[m
+[1m+++ b/soup.py[m
+[36m@@ -1,4 +1,4 @@[m
+[31m-import requests[m
+[32m+[m[32mgitkimport requests[m
+ from logs import writelogs[m
+ from bs4 import BeautifulSoup[m
+ import sys[m
