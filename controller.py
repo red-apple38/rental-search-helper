@@ -1,4 +1,4 @@
-from webbot import WebBot,
+from webbot import WebBot
 from soup import Soup
 from g_sheets import Daten
 
