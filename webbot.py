@@ -13,14 +13,25 @@ class WebBot:
     ua = UserAgent(browsers=['edge', 'chrome'])
 
     def __init__(self):
-        self.URL = "https://www.immobilienscout24.de/"
+        self.url = "https://www.immobilienscout24.de/"
         self.driver = uc.Chrome()  # headless Fehler
         self.element = None
         self.html_content = None
         self.user_agent = self.ua.random
+        self.params = {
+
+            "numberofrooms": None,
+            "price": None,
+            "livingspace": None,
+            "pricetype": None,  # rentpermonth
+            "enteredFrom": None  # result_list
+        }
+        """
+    
+        """
 
     def start(self):
-        self.driver.get(self.URL)
+        self.driver.get(self.url)
 
     def set_element(self, dom_suchkriterium, element_locator, timeout=10.):
         self.element = WebDriverWait(self.driver, timeout).until(
@@ -34,6 +45,8 @@ class WebBot:
         self.element = wait.until(EC.element_to_be_clickable((dom_suchkriterium, element_locator)))
 
     def clear_and_send_keys(self, text):
+
+        self.element.click()
         self.element.clear()
         self.element.send_keys(text)
         time.sleep(1)
@@ -65,40 +78,49 @@ class WebBot:
             response = requests.get(url, headers=hdr)  # self.driver.current_url
             response.raise_for_status()
             self.html_content = response.text
-            return self.html_content
+            return self.html_content  # warum?
 
         except requests.exceptions.RequestException as e:
             writelogs(e)
-            self.html_content = None # etwas ist schiefgelaufen
+            self.html_content = None  # etwas ist schiefgelaufen
 
+    # Implementierung als statische methode? später vllt...
 
-# Implementierung als statische methode? später vllt...
-    def start_webbot(self): # driver Error falls Chrome updated abfangen Log message --- Funktion zerschlagen!
+    def url_cut_onestep(self):
+        onestep = "?enteredFrom=one_step_search"
+        if onestep in self.url:
+            self.url = self.url.split(onestep)[0]
+
+    def start_webbot(self):  # driver Error falls Chrome updated abfangen Log message --- Funktion zerschlagen!
         self.start()
-        try: # Zeitaufwändig bei wiederholung ? control behavior
+        try:  # Zeitaufwändig bei wiederholung ? control behavior
 
             self.set_element_in_shadow_root(sdom_suchkriterium="css selector",
-                                               sdom_element_locator='[id="usercentrics-root"]',
-                                               dom_suchkriterium="css selector",
-                                               element_locator='button[data-testid="uc-customize-button"]')
+                                            sdom_element_locator='[id="usercentrics-root"]',
+                                            dom_suchkriterium="css selector",
+                                            element_locator='button[data-testid="uc-customize-button"]')
             self.click()
             self.set_element_in_shadow_root(sdom_suchkriterium="css selector",
-                                               sdom_element_locator='[id="usercentrics-root"]',
-                                               dom_suchkriterium="css selector",
-                                               element_locator='button[data-testid="uc-deny-all-button"]')
+                                            sdom_element_locator='[id="usercentrics-root"]',
+                                            dom_suchkriterium="css selector",
+                                            element_locator='button[data-testid="uc-deny-all-button"]')
             self.click()
 
         except TimeoutError as t:
             raise t
 
         finally:
-            self.set_element(dom_suchkriterium="id", element_locator="oss-location", )
+            time.sleep(2)
+            # self.set_element(dom_suchkriterium="id", element_locator="oss-location")
+            self.set_element(dom_suchkriterium="xpath",
+                             element_locator='/html/body/div[1]/main/section[1]/div[2]/div/div/div/form[1]/article/div/div[1]/div/div[2]/div[3]/input')
+
             self.clear_and_send_keys(text="Gießen")
             time.sleep(0.5)
             self.element.send_keys(Keys.ENTER)
             time.sleep(0.5)
             self.element.send_keys(Keys.ENTER)
-            # nicht sleep url muss stimmen -> später Abfrage nach Integration von sheets
+            # nicht sleep url muss stimmen -> später Abfrage nach Integration von sheets-> Implementierung mit Suche nach Substring
             time.sleep(3)
 
             # Todo Feature will be delayed
@@ -110,9 +132,9 @@ class WebBot:
             # bot.set_element(dom_suchkriterium="id", element_locator="oss-rooms")
             # bot.select_field_by_value("2")
 
-            self.get_response(url=self.driver.current_url)
+            self.url = self.driver.current_url
+            self.get_response(url=self.url)
+            self.url_cut_onestep()
+            self.get_response(
+                url="https://www.immobilienscout24.de/Suche/de/hessen/giessen-kreis/giessen/wohnung-mieten?numberofrooms=2.0-3.0&price=300.0-5000.0&livingspace=3.0-200.0&pricetype=rentpermonth&enteredFrom=result_list")
             self.driver.quit()
-
-
-
-
