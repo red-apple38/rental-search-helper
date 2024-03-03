@@ -17,17 +17,27 @@ class WebBot:
         self.driver = uc.Chrome()  # headless Fehler
         self.element = None
         self.html_content = None
-        self.user_agent = self.ua.random
+        self.user_agent = self.ua.random  # sollte sich mal villeicht ändern ?
         self.params = {
-
             "numberofrooms": None,
             "price": None,
             "livingspace": None,
-            "pricetype": None,  # rentpermonth
-            "enteredFrom": None  # result_list
+            "pricetype": None,
+            "enteredFrom": None,
+            "pagenumber": None
         }
         """
-    
+        | parameter für request 
+        | min-max values
+        | wenn nur min: -> min-
+        | wenn nur max: -> -max
+        | "numberofrooms": 2.0-3.0  
+        | "price": 500.0-500.0,
+        | "livingspace": 30.0-200.0,
+        | "pricetype": rentpermonth falls price mitgegeben wird
+        | "enteredFrom": result_list falls ein value übergeben wird
+        |"pagenumber" : int
+        
         """
 
     def start(self):
@@ -63,7 +73,7 @@ class WebBot:
         self.html_content = self.driver.page_source
         return self.html_content
 
-    def get_response(self, url) -> str:
+    def get_response(self):
         selenium_cookies = self.driver.get_cookies()
         requests_cookies = {cookie['name']: cookie['value'] for cookie in selenium_cookies}
         hdr = {'User-Agent': self.user_agent,
@@ -75,10 +85,9 @@ class WebBot:
                }
 
         try:
-            response = requests.get(url, headers=hdr)  # self.driver.current_url
+            response = requests.get(self.url, headers=hdr, params=self.params)
             response.raise_for_status()
             self.html_content = response.text
-            return self.html_content  # warum?
 
         except requests.exceptions.RequestException as e:
             writelogs(e)
@@ -113,7 +122,8 @@ class WebBot:
             time.sleep(2)
             # self.set_element(dom_suchkriterium="id", element_locator="oss-location")
             self.set_element(dom_suchkriterium="xpath",
-                             element_locator='/html/body/div[1]/main/section[1]/div[2]/div/div/div/form[1]/article/div/div[1]/div/div[2]/div[3]/input')
+                             element_locator='/html/body/div[1]/main/section[1]/div[2]/div/div/div/form[1]/article/div/'
+                                             'div[1]/div/div[2]/div[3]/input')  # FIX das wird eine ERROR in Zukunft
 
             self.clear_and_send_keys(text="Gießen")
             time.sleep(0.5)
@@ -132,9 +142,7 @@ class WebBot:
             # bot.set_element(dom_suchkriterium="id", element_locator="oss-rooms")
             # bot.select_field_by_value("2")
 
-            self.url = self.driver.current_url
-            self.get_response(url=self.url)
+            self.url = self.driver.current_url  # URL check
+            self.get_response()
             self.url_cut_onestep()
-            self.get_response(
-                url="https://www.immobilienscout24.de/Suche/de/hessen/giessen-kreis/giessen/wohnung-mieten?numberofrooms=2.0-3.0&price=300.0-5000.0&livingspace=3.0-200.0&pricetype=rentpermonth&enteredFrom=result_list")
             self.driver.quit()
